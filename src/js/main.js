@@ -19,63 +19,101 @@ function updateOutNotification(rate) {
 }
 
 function selectInsert(event) {
-    let clickedButton = event.target;
-    insertButtons.forEach((node) => node.classList.remove('active-insert'));
-    clickedButton.classList.add("active-insert");
-    activeBtnInsert = clickedButton.textContent;
-    if (activeBtnInsert !== activeBtnOut) {
-        fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
-        .then(response => response.json())
-        .then(data => {
-            updateInsertNotification(data.conversion_rates[activeBtnOut]);
-            // outInput.value = parseFloat(+insertInput.value) * parseFloat(+data.conversion_rates[activeBtnOut]);
-        })
-    fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
-        .then(response => response.json())
-        .then(data => {
-            updateOutNotification(data.conversion_rates[activeBtnInsert]);
-        })
+    if (window.navigator.onLine) {
+        if (activeBtnInsert !== event.target.textContent) {
+            let clickedButton = event.target;
+            insertButtons.forEach((node) => node.classList.remove('active-insert'));
+            clickedButton.classList.add("active-insert");
+            activeBtnInsert = clickedButton.textContent;
+            if (activeBtnInsert !== activeBtnOut && insertInput.value != '') {
+                fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateInsertNotification(data.conversion_rates[activeBtnOut]);
+                    })
+                fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateOutNotification(data.conversion_rates[activeBtnInsert]);
+                    })
+
+            }
+            changeOut()
+        }
+    }
+    else {
         changeOut()
+        console.error('No internet connection')
     }
 }
 
 function selectOut(event) {
-    let clickedButton = event.target;
-    outButtons.forEach((node) => node.classList.remove('active-out'));
-    clickedButton.classList.add("active-out");
-    activeBtnOut = clickedButton.textContent;
-    if (activeBtnOut !== activeBtnInsert) {
-          fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
-        .then(response => response.json())
-        .then(data => {
-            updateOutNotification(data.conversion_rates[activeBtnInsert]);
-            // insertInput.value = parseFloat(+outInput.value) * parseFloat(+data.conversion_rates[activeBtnInsert]);
-        })
-    fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
-        .then(response => response.json())
-        .then(data => {
-            updateInsertNotification(data.conversion_rates[activeBtnOut]);
-        })
-        changeInsert()
+    if (window.navigator.onLine) {
+        if (activeBtnOut !== event.target.textContent) {
+            let clickedButton = event.target;
+            outButtons.forEach((node) => node.classList.remove('active-out'));
+            clickedButton.classList.add("active-out");
+            activeBtnOut = clickedButton.textContent;
+            if (activeBtnOut !== activeBtnInsert && outInput.value != '') {
+                fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateOutNotification(data.conversion_rates[activeBtnInsert]);
+                    })
+                fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateInsertNotification(data.conversion_rates[activeBtnOut]);
+                    })
+
+            }
+            changeInsert()
+        }
+        else {
+            changeInsert()
+        }
     }
-  
+    else {
+        console.error("No internet connection!");
+    }
+
 }
 
-function changeInsert(){
-    fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
-    .then(response => response.json())
-    .then(data => {
-        outInput.value = parseFloat(+insertInput.value) * parseFloat(+data.conversion_rates[activeBtnOut]);
-    })
+function changeInsert() {
+    if (window.navigator.onLine) {
+        if (activeBtnInsert !== activeBtnOut) {
+            fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnInsert}`)
+                .then(response => response.json())
+                .then(data => {
+                    outInput.value = parseFloat(+insertInput.value) * parseFloat(+data.conversion_rates[activeBtnOut]);
+                })
+        }
+        else {
+            outInput.value = insertInput.value;
+
+        }
+    }
+    else {
+        console.error("No internet connection!");
+    }
 }
-insertInput.addEventListener('keydown',changeInsert)
-insertInput.addEventListener('focus',changeInsert)
+insertInput.addEventListener('keydown', changeInsert)
 function changeOut() {
-    fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
-    .then(response => response.json())
-    .then(data => {
-        insertInput.value= parseFloat(+outInput.value) * parseFloat(+data.conversion_rates[activeBtnInsert])
-    })
+    if (window.navigator.onLine) {
+        if (activeBtnInsert !== activeBtnOut) {
+            fetch(`https://v6.exchangerate-api.com/v6/f74916ad5e126616b7d10861/latest/${activeBtnOut}`)
+                .then(response => response.json())
+                .then(data => {
+                    insertInput.value = parseFloat(+outInput.value) * parseFloat(+data.conversion_rates[activeBtnInsert])
+                })
+        }
+        else {
+            insertInput.value = outInput.value;
+        }
+    }
+
+    else {
+        console.error("No internet connection!");
+    }
 }
-outInput.addEventListener('keyup',changeOut)
-outInput.addEventListener('focus',changeOut)
+outInput.addEventListener('keyup', changeOut)
